@@ -3,20 +3,19 @@ import { useQuery, gql } from '@apollo/client';
 import { useEffect } from 'react';
 
 const GET_DATA = gql`
-	query GetLaunches {
-		launchesPast(limit: 10) {
-			mission_name
-			launch_date_local
+	{
+		customers {
+			id
+			name
+			industry
 		}
 	}
 `;
 
-export type Launch = {
-	mission_name: string;
-	launch_date_local: string;
-	launch_site: {
-		site_name_long: string;
-	};
+export type Customer = {
+	id: number;
+	name: string;
+	industry: string;
 };
 
 function App() {
@@ -29,12 +28,14 @@ function App() {
 	return (
 		<div className='App'>
 			<h2>My first Apollo app 🚀</h2>
+			{error ? <p>Something went wrong</p> : null}
+			{loading ? <p>loading</p> : null}
 			{data
-				? data.launchesPast.map((launch: Launch) => {
+				? data.customers.map((customer: Customer) => {
 						return (
-							<p>
-								{launch.mission_name}
-								{launch.launch_date_local}
+							<p key={customer.id}>
+								{customer.name}
+								{customer.industry}
 							</p>
 						);
 				  })

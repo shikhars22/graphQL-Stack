@@ -6,29 +6,13 @@ import {
 	ApolloClient,
 	InMemoryCache,
 	ApolloProvider,
-	gql,
+	// gql,
 } from '@apollo/client';
 
 let client = new ApolloClient({
-	uri: 'https://api.spacex.land/graphql/',
+	uri: 'http://localhost:8000/graphql/',
 	cache: new InMemoryCache(),
 });
-
-client
-	.query({
-		query: gql`
-			{
-				launchesPast(limit: 10) {
-					mission_name
-					launch_date_local
-					launch_site {
-						site_name_long
-					}
-				}
-			}
-		`,
-	})
-	.then((result) => console.log(result));
 
 const root = ReactDOM.createRoot(
 	document.getElementById('root') as HTMLElement
