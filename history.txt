@@ -902,10 +902,6 @@
   902  cd ..
   903  cd graphQL-Stack/
   904  code graphql/
-  905  git checkout -b devskg
-  906  npm install
-  907* npm install @apollo/client graphql
-  908  npm uninstall @apollo/server graphql
-  909  npm install @apollo/client graphql
-  910  cd ..
-  911  history > history.txt
+  905  cd ..
+  906  git add .
+  907  history> history.txt 
