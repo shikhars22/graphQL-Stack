@@ -1,6 +1,7 @@
 import './App.css';
 import { useQuery, useMutation, gql } from '@apollo/client';
 import { useEffect, useState } from 'react';
+import AddOrder from './components/AddOrder';
 
 const GET_DATA = gql`
 	{
@@ -8,6 +9,11 @@ const GET_DATA = gql`
 			id
 			name
 			industry
+			orders {
+				id
+				description
+				totalInCents
+			}
 		}
 	}
 `;
@@ -23,10 +29,18 @@ const MUTATE_DATA = gql`
 	}
 `;
 
+export type Order = {
+	id: number;
+	description: string;
+	totalInCents: number;
+	// customer: Customer[];
+};
+
 export type Customer = {
 	id: number;
 	name: string;
 	industry: string;
+	orders: Order[];
 };
 
 function App() {
@@ -54,62 +68,38 @@ function App() {
 	return (
 		<>
 			<div className='App'>
-				<h2>My first Apollo app 🚀</h2>
+				<h1>Customers 🚀</h1>
 				{error ? <p>Something went wrong</p> : null}
 				{loading ? <p>loading</p> : null}
 				{data
 					? data.customers.map((customer: Customer) => {
 							return (
-								<p key={customer.id}>
-									{customer.name}
-									{customer.industry}
-								</p>
+								<div key={customer.id}>
+									{' '}
+									<br />
+									<h3 key={customer.id}>
+										{customer.name + '\t(' + customer.industry + ')'}
+									</h3>
+									{customer.orders.map((order: Order) => {
+										return (
+											<p key={order.id}>
+												{'\t' +
+													order.description +
+													'\t' +
+													(order.totalInCents / 100).toLocaleString('en-IN', {
+														style: 'currency',
+														currency: 'INR',
+														minimumFractionDigits: 2,
+													})}
+											</p>
+										);
+									})}
+									<AddOrder customerID={customer.id} />
+								</div>
 							);
 					  })
 					: null}
 			</div>
-			<form
-				id='createCustomer'
-				onSubmit={(e) => {
-					e.preventDefault();
-					// console.log('submitting ...', name, industry);
-					createCustomer({ variables: { name: name, industry: industry } });
-					if (!error) {
-						setIndustry('');
-						setName('');
-					}
-				}}>
-				<div className='flex justify-center'>
-					<div>
-						<label htmlFor='name'>Name</label>
-						<input
-							id='name'
-							type={'text'}
-							value={name}
-							onChange={(e) => {
-								setName(e.target.value);
-							}}
-						/>
-					</div>
-					<div>
-						<label htmlFor='industry'>Industry</label>
-						<input
-							id='industry'
-							type={'text'}
-							value={industry}
-							onChange={(e) => {
-								setIndustry(e.target.value);
-							}}
-						/>
-					</div>
-					<button
-						disabled={createCustomerLoading ? true : false}
-						form='createCustomer'>
-						Create customer
-					</button>
-					{createCustomerError ? <p>Error creating customer</p> : null}
-				</div>
-			</form>
 		</>
 	);
 }
