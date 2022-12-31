@@ -1,13 +1,68 @@
-import { useState } from 'react';
+import { gql, useMutation } from '@apollo/client';
+import { useEffect, useState } from 'react';
 
 export type AppProps = {
 	customerID: number;
 };
 
+const MUTATE_DATA = gql`
+	mutation MUTATE_DATA(
+		$description: String!
+		$totalInCents: Int!
+		$customer: ID!
+	) {
+		createOrder(
+			customer: $customer
+			description: $description
+			totalInCents: $totalInCents
+		) {
+			order {
+				id
+				customer {
+					id
+				}
+				description
+				totalInCents
+			}
+		}
+	}
+`;
+
+const GET_DATA = gql`
+	{
+		customers {
+			id
+			name
+			industry
+			orders {
+				id
+				description
+				totalInCents
+			}
+		}
+	}
+`;
+
 export default function AddOrder({ customerID }: AppProps) {
 	const [active, setActive] = useState(false);
 	const [description, setDescription] = useState('');
 	const [amount, setAmount] = useState(NaN);
+
+	const [createOrder, { loading, error, data }] = useMutation(MUTATE_DATA, {
+		refetchQueries: [
+			{ query: GET_DATA }, // DocumentNode object parsed with gql
+		],
+	});
+	useEffect(() => {
+		if (data) {
+			console.log(data);
+			setDescription('');
+			setAmount(NaN);
+		}
+		// console.log(loading, error, data);
+		// console.log(createCustomerLoading, createCustomerError, createCustomerData);
+	});
+
 	return (
 		<div>
 			{active ? null : (
@@ -25,6 +80,13 @@ export default function AddOrder({ customerID }: AppProps) {
 						id='createCustomer'
 						onSubmit={(e) => {
 							e.preventDefault();
+							createOrder({
+								variables: {
+									customer: customerID,
+									description: description,
+									totalInCents: amount * 100,
+								},
+							});
 							console.log(customerID, description, amount);
 						}}>
 						<div className='flex justify-center'>
@@ -59,6 +121,7 @@ export default function AddOrder({ customerID }: AppProps) {
 							{createCustomerError ? <p>Error creating customer</p> : null} */}
 						</div>
 					</form>
+					{error ? <p>something went wrong</p> : null}
 				</div>
 			) : null}
 		</div>
